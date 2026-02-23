@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Flow Field — Generative Art</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #0a0a0f; display: flex; justify-content: center; align-items: center; min-height: 100vh; overflow: hidden; }
+  canvas { border-radius: 8px; }
+  #controls { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; gap: 12px; z-index: 10; }
+  #controls button {
+    background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15);
+    color: #ccc; padding: 8px 18px; border-radius: 20px; cursor: pointer;
+    font: 13px/1 'SF Mono', monospace; transition: all 0.2s;
+  }
+  #controls button:hover { background: rgba(255,255,255,0.15); color: #fff; }
+  #info { position: fixed; top: 20px; left: 20px; color: rgba(255,255,255,0.3); font: 11px/1.4 'SF Mono', monospace; }
+</style>
+</head>
+<body>
+<div id="info">click to regenerate<br>move mouse to influence flow</div>
+<div id="controls">
+  <button onclick="palette=0;init()">Aurora</button>
+  <button onclick="palette=1;init()">Ocean</button>
+  <button onclick="palette=2;init()">Ember</button>
+  <button onclick="palette=3;init()">Neon</button>
+</div>
+<canvas id="c"></canvas>
+<script>
+const canvas = document.getElementById('c');
+const ctx = canvas.getContext('2d');
+let W, H, particles, field, cols, rows, palette = 0, seed, mouseX = -1, mouseY = -1;
+const SCALE = 20, PARTICLES = 2000;
+
+const palettes = [
+  ['#00f5d4','#00bbf9','#9b5de5','#f15bb5','#fee440'],
+  ['#023e8a','#0077b6','#0096c7','#00b4d8','#48cae4'],
+  ['#d00000','#dc2f02','#e85d04','#f48c06','#faa307'],
+  ['#ff006e','#8338ec','#3a86ff','#06d6a0','#ffbe0b'],
+];
+
+function hash(x) { x=((x>>16)^x)*0x45d9f3b; x=((x>>16)^x)*0x45d9f3b; return((x>>16)^x)&0x7fffffff; }
+function seededRandom() { seed = hash(seed); return (seed & 0xffffff) / 0xffffff; }
+
+function init() {
+  W = canvas.width = Math.min(window.innerWidth - 40, 1200);
+  H = canvas.height = Math.min(window.innerHeight - 40, 800);
+  seed = Date.now();
+  cols = Math.ceil(W / SCALE);
+  rows = Math.ceil(H / SCALE);
+  field = new Float32Array(cols * rows);
+
+  const zoff = seededRandom() * 1000;
+  for (let y = 0; y < rows; y++)
+    for (let x = 0; x < cols; x++)
+      field[y * cols + x] = noise(x * 0.06, y * 0.06, zoff) * Math.PI * 4;
+
+  particles = Array.from({ length: PARTICLES }, () => ({
+    x: seededRandom() * W, y: seededRandom() * H,
+    vx: 0, vy: 0, life: seededRandom() * 100 + 50,
+    color: palettes[palette][Math.floor(seededRandom() * 5)]
+  }));
+
+  ctx.fillStyle = '#0a0a0f';
+  ctx.fillRect(0, 0, W, H);
+}
+
+function noise(x, y, z = 0) {
+  const X = Math.floor(x) & 255, Y = Math.floor(y) & 255;
+  const xf = x - Math.floor(x), yf = y - Math.floor(y);
+  const u = fade(xf), v = fade(yf);
+  const a = hash(X + hash(Y + hash(Math.floor(z)))) / 0x7fffffff;
+  const b = hash(X + 1 + hash(Y + hash(Math.floor(z)))) / 0x7fffffff;
+  const c = hash(X + hash(Y + 1 + hash(Math.floor(z)))) / 0x7fffffff;
+  const d = hash(X + 1 + hash(Y + 1 + hash(Math.floor(z)))) / 0x7fffffff;
+  return lerp(lerp(a, b, u), lerp(c, d, u), v);
+}
+function fade(t) { return t * t * t * (t * (t * 6 - 15) + 10); }
+function lerp(a, b, t) { return a + (b - a) * t; }
+
+function draw() {
+  ctx.fillStyle = 'rgba(10,10,15,0.03)';
+  ctx.fillRect(0, 0, W, H);
+
+  for (const p of particles) {
+    const col = Math.floor(p.x / SCALE);
+    const row = Math.floor(p.y / SCALE);
+    if (col >= 0 && col < cols && row >= 0 && row < rows) {
+      let angle = field[row * cols + col];
+
+      if (mouseX > 0 && mouseY > 0) {
+        const dx = p.x - mouseX, dy = p.y - mouseY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 200) {
+          angle += Math.atan2(dy, dx) * (1 - dist / 200) * 0.8;
+        }
+      }
+
+      p.vx += Math.cos(angle) * 0.3;
+      p.vy += Math.sin(angle) * 0.3;
+    }
+    p.vx *= 0.95; p.vy *= 0.95;
+    p.x += p.vx; p.y += p.vy;
+    p.life--;
+
+    if (p.life <= 0 || p.x < 0 || p.x > W || p.y < 0 || p.y > H) {
+      p.x = Math.random() * W; p.y = Math.random() * H;
+      p.vx = 0; p.vy = 0; p.life = Math.random() * 100 + 50;
+      p.color = palettes[palette][Math.floor(Math.random() * 5)];
+    }
+
+    const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, Math.min(speed * 0.8, 2.5), 0, Math.PI * 2);
+    ctx.fillStyle = p.color + Math.floor(Math.min(speed * 40, 180)).toString(16).padStart(2, '0');
+    ctx.fill();
+  }
+  requestAnimationFrame(draw);
+}
+
+canvas.addEventListener('click', init);
+canvas.addEventListener('mousemove', e => { const r = canvas.getBoundingClientRect(); mouseX = e.clientX - r.left; mouseY = e.clientY - r.top; });
+canvas.addEventListener('mouseleave', () => { mouseX = -1; mouseY = -1; });
+window.addEventListener('resize', init);
+init(); draw();
+</script>
+</body>
+</html>
