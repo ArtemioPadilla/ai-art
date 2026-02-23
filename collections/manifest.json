@@ -1,0 +1,20 @@
+{
+  "collections": [
+    {
+      "id": "geometria-sacred-patterns",
+      "name": "Geometria Sacred Patterns",
+      "tagline": "60 A3 vector posters + 15 looping animations + 6 standalone pieces exploring sacred geometry",
+      "description": "A collection of code-generated sacred geometry, mathematical art, and generative designs — all created with Python, ReportLab & Pillow.",
+      "coverImage": "collections/geometria-sacred-patterns/gif/01-flower-of-life.gif",
+      "stats": [
+        { "value": 60, "label": "PDF Posters", "color": "purple" },
+        { "value": 15, "label": "Animated GIFs", "color": "cyan" },
+        { "value": 6, "label": "Standalone Pieces", "color": "rose" },
+        { "value": 5, "label": "Generator Scripts", "color": "gold" }
+      ],
+      "tags": ["sacred-geometry", "fractals", "python", "reportlab", "pillow"],
+      "date": "2025-02-22",
+      "path": "collections/geometria-sacred-patterns/"
+    }
+  ]
+}

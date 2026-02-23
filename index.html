@@ -3,532 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>AI Art — Generative Sacred Geometry</title>
-<style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400&display=swap');
-
-  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-  :root {
-    --bg: #06060a;
-    --bg2: #0c0c14;
-    --surface: #12121e;
-    --border: #1e1e30;
-    --text: #e8e8f0;
-    --text2: #8888aa;
-    --accent: #a78bfa;
-    --accent2: #c084fc;
-    --gold: #f59e0b;
-    --cyan: #22d3ee;
-    --rose: #fb7185;
-    --emerald: #34d399;
-    --glow: rgba(167, 139, 250, 0.15);
-  }
-
-  html { scroll-behavior: smooth; }
-
-  body {
-    font-family: 'Inter', system-ui, sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    line-height: 1.6;
-    overflow-x: hidden;
-  }
-
-  /* ===== HERO ===== */
-  .hero {
-    position: relative;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 2rem;
-    overflow: hidden;
-  }
-
-  .hero::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 600px 600px at 50% 40%, rgba(167,139,250,0.08) 0%, transparent 70%),
-      radial-gradient(ellipse 400px 400px at 30% 60%, rgba(34,211,238,0.05) 0%, transparent 70%),
-      radial-gradient(ellipse 400px 400px at 70% 30%, rgba(251,113,133,0.05) 0%, transparent 70%);
-    pointer-events: none;
-  }
-
-  .hero canvas {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    opacity: 0.4;
-  }
-
-  .hero-content { position: relative; z-index: 1; }
-
-  .hero h1 {
-    font-size: clamp(2.5rem, 7vw, 5.5rem);
-    font-weight: 800;
-    letter-spacing: -0.03em;
-    line-height: 1.1;
-    background: linear-gradient(135deg, var(--accent) 0%, var(--cyan) 50%, var(--rose) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 1rem;
-  }
-
-  .hero .subtitle {
-    font-size: clamp(1rem, 2.5vw, 1.3rem);
-    font-weight: 300;
-    color: var(--text2);
-    max-width: 600px;
-    margin: 0 auto 2.5rem;
-  }
-
-  .hero .stats {
-    display: flex;
-    gap: 2rem;
-    justify-content: center;
-    flex-wrap: wrap;
-    margin-bottom: 3rem;
-  }
-
-  .stat {
-    text-align: center;
-  }
-
-  .stat-number {
-    font-size: 2.5rem;
-    font-weight: 800;
-    font-family: 'JetBrains Mono', monospace;
-  }
-  .stat-number.purple { color: var(--accent); }
-  .stat-number.cyan { color: var(--cyan); }
-  .stat-number.rose { color: var(--rose); }
-  .stat-number.gold { color: var(--gold); }
-
-  .stat-label {
-    font-size: 0.8rem;
-    color: var(--text2);
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-  }
-
-  .nav-pills {
-    display: flex;
-    gap: 0.75rem;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
-  .nav-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.6rem 1.4rem;
-    border-radius: 999px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text2);
-    font-size: 0.85rem;
-    text-decoration: none;
-    transition: all 0.3s ease;
-  }
-
-  .nav-pill:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(167, 139, 250, 0.08);
-    transform: translateY(-2px);
-  }
-
-  .scroll-hint {
-    position: absolute;
-    bottom: 2rem;
-    left: 50%;
-    transform: translateX(-50%);
-    animation: float 2s ease-in-out infinite;
-    color: var(--text2);
-    font-size: 0.8rem;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .scroll-hint svg { width: 20px; height: 20px; }
-
-  @keyframes float {
-    0%, 100% { transform: translateX(-50%) translateY(0); }
-    50% { transform: translateX(-50%) translateY(8px); }
-  }
-
-  /* ===== SECTIONS ===== */
-  section {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 5rem 2rem;
-  }
-
-  .section-header {
-    text-align: center;
-    margin-bottom: 3rem;
-  }
-
-  .section-header h2 {
-    font-size: clamp(1.8rem, 4vw, 2.8rem);
-    font-weight: 800;
-    letter-spacing: -0.02em;
-    margin-bottom: 0.5rem;
-  }
-
-  .section-header p {
-    color: var(--text2);
-    font-size: 1rem;
-    max-width: 600px;
-    margin: 0 auto;
-  }
-
-  .divider {
-    width: 60px;
-    height: 2px;
-    background: linear-gradient(90deg, var(--accent), var(--cyan));
-    margin: 1rem auto;
-    border-radius: 2px;
-  }
-
-  /* ===== GIF GALLERY ===== */
-  .gif-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .gif-card {
-    position: relative;
-    border-radius: 16px;
-    overflow: hidden;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-    aspect-ratio: 1;
-  }
-
-  .gif-card:hover {
-    border-color: var(--accent);
-    transform: translateY(-4px);
-    box-shadow: 0 20px 60px rgba(167, 139, 250, 0.12);
-  }
-
-  .gif-card img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  .gif-card .overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    padding: 1.5rem 1rem 1rem;
-    background: linear-gradient(transparent, rgba(6, 6, 10, 0.95));
-    transform: translateY(100%);
-    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  .gif-card:hover .overlay { transform: translateY(0); }
-
-  .gif-card .overlay h3 {
-    font-size: 0.95rem;
-    font-weight: 600;
-    margin-bottom: 0.2rem;
-  }
-
-  .gif-card .overlay p {
-    font-size: 0.75rem;
-    color: var(--text2);
-  }
-
-  .gif-badge {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
-    background: rgba(6, 6, 10, 0.7);
-    backdrop-filter: blur(8px);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 0.2rem 0.5rem;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.65rem;
-    color: var(--cyan);
-  }
-
-  /* ===== PDF GRID ===== */
-  .series-group {
-    margin-bottom: 3rem;
-  }
-
-  .series-title {
-    font-size: 1.1rem;
-    font-weight: 600;
-    color: var(--text2);
-    margin-bottom: 1rem;
-    padding-left: 0.5rem;
-    border-left: 3px solid var(--accent);
-  }
-
-  .pdf-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem;
-  }
-
-  .pdf-card {
-    position: relative;
-    border-radius: 12px;
-    overflow: hidden;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    padding: 1.25rem;
-    text-decoration: none;
-    color: var(--text);
-    transition: all 0.3s ease;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-
-  .pdf-card:hover {
-    border-color: var(--accent);
-    transform: translateY(-3px);
-    box-shadow: 0 12px 40px rgba(167, 139, 250, 0.1);
-  }
-
-  .pdf-number {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
-    color: var(--accent);
-    opacity: 0.7;
-  }
-
-  .pdf-name {
-    font-size: 0.9rem;
-    font-weight: 600;
-    line-height: 1.3;
-  }
-
-  .pdf-concept {
-    font-size: 0.75rem;
-    color: var(--text2);
-    line-height: 1.4;
-  }
-
-  .pdf-palette {
-    display: flex;
-    gap: 4px;
-    margin-top: auto;
-  }
-
-  .pdf-palette .dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    border: 1px solid rgba(255,255,255,0.1);
-  }
-
-  .pdf-icon {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
-    width: 20px;
-    height: 20px;
-    color: var(--text2);
-    opacity: 0;
-    transition: opacity 0.3s;
-  }
-
-  .pdf-card:hover .pdf-icon { opacity: 1; }
-
-  /* ===== STANDALONE PIECES ===== */
-  .standalone-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .standalone-card {
-    border-radius: 16px;
-    overflow: hidden;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    text-decoration: none;
-    color: var(--text);
-    transition: all 0.3s ease;
-  }
-
-  .standalone-card:hover {
-    border-color: var(--accent);
-    transform: translateY(-4px);
-    box-shadow: 0 16px 50px rgba(167, 139, 250, 0.1);
-  }
-
-  .standalone-preview {
-    width: 100%;
-    aspect-ratio: 16/10;
-    background: var(--bg2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    position: relative;
-  }
-
-  .standalone-preview img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .standalone-preview .format-tag {
-    position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
-    background: rgba(6, 6, 10, 0.8);
-    backdrop-filter: blur(8px);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 0.25rem 0.6rem;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.7rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-  .format-tag.png { color: var(--emerald); }
-  .format-tag.gif { color: var(--cyan); }
-  .format-tag.pdf { color: var(--rose); }
-  .format-tag.html { color: var(--gold); }
-  .format-tag.svg { color: var(--accent2); }
-
-  .standalone-info {
-    padding: 1.25rem;
-  }
-
-  .standalone-info h3 {
-    font-size: 1rem;
-    font-weight: 600;
-    margin-bottom: 0.3rem;
-  }
-
-  .standalone-info p {
-    font-size: 0.8rem;
-    color: var(--text2);
-  }
-
-  /* ===== SOURCE CODE SECTION ===== */
-  .source-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1rem;
-  }
-
-  .source-card {
-    border-radius: 12px;
-    border: 1px solid var(--border);
-    background: var(--surface);
-    padding: 1.5rem;
-    text-decoration: none;
-    color: var(--text);
-    transition: all 0.3s ease;
-  }
-
-  .source-card:hover {
-    border-color: var(--emerald);
-    transform: translateY(-2px);
-  }
-
-  .source-card h3 {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.85rem;
-    color: var(--emerald);
-    margin-bottom: 0.5rem;
-  }
-
-  .source-card p {
-    font-size: 0.8rem;
-    color: var(--text2);
-  }
-
-  /* ===== FOOTER ===== */
-  footer {
-    text-align: center;
-    padding: 3rem 2rem;
-    border-top: 1px solid var(--border);
-    color: var(--text2);
-    font-size: 0.8rem;
-  }
-
-  footer a {
-    color: var(--accent);
-    text-decoration: none;
-  }
-  footer a:hover { text-decoration: underline; }
-
-  /* ===== FILTER TABS ===== */
-  .filter-bar {
-    display: flex;
-    gap: 0.5rem;
-    justify-content: center;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
-  }
-
-  .filter-btn {
-    padding: 0.4rem 1rem;
-    border-radius: 8px;
-    border: 1px solid var(--border);
-    background: transparent;
-    color: var(--text2);
-    font-size: 0.8rem;
-    cursor: pointer;
-    transition: all 0.2s;
-    font-family: 'Inter', sans-serif;
-  }
-
-  .filter-btn:hover, .filter-btn.active {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(167, 139, 250, 0.08);
-  }
-
-  /* ===== RESPONSIVE ===== */
-  @media (max-width: 768px) {
-    .hero .stats { gap: 1.5rem; }
-    .stat-number { font-size: 2rem; }
-    .gif-grid { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); }
-    .pdf-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
-    .standalone-grid { grid-template-columns: 1fr; }
-    section { padding: 3rem 1rem; }
-    .gif-card .overlay { transform: translateY(0); }
-  }
-
-  /* ===== ANIMATIONS ===== */
-  .fade-in {
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.6s ease, transform 0.6s ease;
-  }
-  .fade-in.visible {
-    opacity: 1;
-    transform: translateY(0);
-  }
-</style>
+<title>AI Art — Generative Art Collections</title>
+<link rel="stylesheet" href="shared/styles.css">
+<link rel="stylesheet" href="shared/hub.css">
 </head>
 <body>
 
@@ -537,30 +14,11 @@
   <canvas id="hero-canvas"></canvas>
   <div class="hero-content">
     <h1>AI ART</h1>
-    <p class="subtitle">A collection of code-generated sacred geometry, mathematical art, and generative designs — all created with Python, ReportLab & Pillow</p>
-    <div class="stats">
-      <div class="stat">
-        <div class="stat-number purple">60</div>
-        <div class="stat-label">PDF Posters</div>
-      </div>
-      <div class="stat">
-        <div class="stat-number cyan">15</div>
-        <div class="stat-label">Animated GIFs</div>
-      </div>
-      <div class="stat">
-        <div class="stat-number rose">6</div>
-        <div class="stat-label">Standalone Pieces</div>
-      </div>
-      <div class="stat">
-        <div class="stat-number gold">5</div>
-        <div class="stat-label">Generator Scripts</div>
-      </div>
-    </div>
+    <p class="subtitle">A growing gallery of code-generated art collections — sacred geometry, mathematical beauty, and generative designs</p>
+    <div class="stats" id="hub-stats"></div>
     <nav class="nav-pills">
-      <a href="#gifs" class="nav-pill">Animated GIFs</a>
-      <a href="#posters" class="nav-pill">PDF Posters</a>
-      <a href="#standalone" class="nav-pill">Standalone</a>
-      <a href="#source" class="nav-pill">Source Code</a>
+      <a href="#collections" class="nav-pill">Browse Collections</a>
+      <a href="https://github.com/ArtemioPadilla/ai-art" class="nav-pill" target="_blank">GitHub</a>
     </nav>
   </div>
   <div class="scroll-hint">
@@ -569,335 +27,86 @@
   </div>
 </header>
 
-<!-- ===== ANIMATED GIFS ===== -->
-<section id="gifs">
+<!-- ===== COLLECTIONS ===== -->
+<div class="hub-section" id="collections">
   <div class="section-header fade-in">
-    <h2>Animated GIFs</h2>
+    <h2>Collections</h2>
     <div class="divider"></div>
-    <p>15 perfectly looping animations at 540px, 60 frames each. Sacred geometry in motion.</p>
+    <p>Each collection is a self-contained body of generative artwork with its own theme and tools.</p>
   </div>
-  <div class="gif-grid" id="gif-grid"></div>
-</section>
-
-<!-- ===== PDF POSTERS ===== -->
-<section id="posters">
-  <div class="section-header fade-in">
-    <h2>Sacred Geometry Posters</h2>
-    <div class="divider"></div>
-    <p>60 unique A3 vector PDFs exploring geometry, fractals, physics, and mathematical beauty.</p>
-  </div>
-
-  <div class="filter-bar" id="pdf-filters">
-    <button class="filter-btn active" data-filter="all">All (60)</button>
-    <button class="filter-btn" data-filter="001-015">001–015</button>
-    <button class="filter-btn" data-filter="016-030">016–030</button>
-    <button class="filter-btn" data-filter="031-045">031–045</button>
-    <button class="filter-btn" data-filter="046-060">046–060</button>
-  </div>
-
-  <div class="pdf-grid" id="pdf-grid"></div>
-</section>
-
-<!-- ===== STANDALONE ===== -->
-<section id="standalone">
-  <div class="section-header fade-in">
-    <h2>Standalone Pieces</h2>
-    <div class="divider"></div>
-    <p>Individual artworks in various formats — PNG, GIF, PDF, SVG, and interactive HTML.</p>
-  </div>
-  <div class="standalone-grid" id="standalone-grid"></div>
-</section>
-
-<!-- ===== SOURCE CODE ===== -->
-<section id="source">
-  <div class="section-header fade-in">
-    <h2>Source Code</h2>
-    <div class="divider"></div>
-    <p>Every piece is generated from Python scripts. Explore, fork, and create your own.</p>
-  </div>
-  <div class="source-grid" id="source-grid"></div>
-</section>
+  <div class="collections-grid" id="collections-grid"></div>
+</div>
 
 <!-- ===== FOOTER ===== -->
 <footer>
-  <p>All art generated with Python + ReportLab + Pillow</p>
+  <p>All art generated with code</p>
   <p style="margin-top: 0.5rem;">
     <a href="https://github.com/ArtemioPadilla/ai-art">View on GitHub</a>
-    &nbsp;&middot;&nbsp;
-    <a href="geometria-sacred-patterns/README.md">Documentation</a>
   </p>
 </footer>
 
-<script>
-// ===== DATA =====
-const gifs = [
-  { id: '01', file: 'flower-of-life', name: 'Flower of Life', desc: 'Rotating sacred pattern', palette: 'Gold / Amber' },
-  { id: '02', file: 'breathing-mandala', name: 'Breathing Mandala', desc: 'Expanding & contracting', palette: 'Ruby / Sapphire' },
-  { id: '03', file: 'spiral-vortex', name: 'Spiral Vortex', desc: 'Particle vortex', palette: 'Emerald / Teal' },
-  { id: '04', file: 'metatrons-cube', name: "Metatron's Cube", desc: 'Pulsing geometry', palette: 'Electric Violet' },
-  { id: '05', file: 'orbiting-particles', name: 'Orbiting Particles', desc: 'Concentric orbits', palette: 'Neon Multi' },
-  { id: '06', file: 'wave-propagation', name: 'Wave Propagation', desc: 'Ripples from center', palette: 'Indigo / Phosphor' },
-  { id: '07', file: 'lorenz-butterfly', name: 'Lorenz Butterfly', desc: 'Strange attractor rotation', palette: 'Orange / Ember' },
-  { id: '08', file: 'geometric-morph', name: 'Geometric Morph', desc: 'Polygon transition 3-12', palette: 'Prismatic Rainbow' },
-  { id: '09', file: 'phyllotaxis-bloom', name: 'Phyllotaxis Bloom', desc: 'Golden angle spiral', palette: 'Sunflower / Green' },
-  { id: '10', file: 'kaleidoscope', name: 'Kaleidoscope', desc: '6-fold symmetry', palette: 'Candy Multi' },
-  { id: '11', file: 'spinning-torus', name: 'Spinning Torus', desc: '3D torus rotation', palette: 'Pink / Magenta' },
-  { id: '12', file: 'tesseract-rotation', name: 'Tesseract Rotation', desc: '4D hypercube', palette: 'Silver / UV' },
-  { id: '13', file: 'supernova-pulse', name: 'Supernova Pulse', desc: 'Shockwave explosion', palette: 'White-Blue-Red' },
-  { id: '14', file: 'dna-helix', name: 'DNA Helix', desc: 'Double helix rotation', palette: 'Bioluminescent Cyan' },
-  { id: '15', file: 'geodesic-sphere', name: 'Geodesic Sphere', desc: 'Spinning icosphere', palette: 'Mint / Seafoam' },
-];
+<script type="module">
+  import { initHeroCanvas } from './shared/hero-canvas.js';
+  import { observeFadeIns } from './shared/scroll-animations.js';
 
-const pdfs = [
-  // 001-015
-  { n: '001', file: 'flower-of-life', name: 'Flower of Life', concept: 'Overlapping circles in 3 rings', palette: ['#d4a017','#f0c040','#b8860b','#ffd700'], series: '001-015' },
-  { n: '002', file: 'sri-yantra', name: 'Sri Yantra', concept: '9 interlocking triangles + lotus', palette: ['#dc143c','#ffd700','#8b0000','#ff4500'], series: '001-015' },
-  { n: '003', file: 'fibonacci-spiral', name: 'Fibonacci Spiral', concept: 'Golden ratio spiral (phi)', palette: ['#2ecc71','#1abc9c','#16a085','#27ae60'], series: '001-015' },
-  { n: '004', file: 'platonic-solids', name: 'Platonic Solids', concept: '5 Platonic solids wireframe', palette: ['#e74c3c','#f39c12','#2ecc71','#3498db','#9b59b6'], series: '001-015' },
-  { n: '005', file: 'vesica-piscis', name: 'Vesica Piscis', concept: 'Intersection of two circles', palette: ['#2980b9','#00bcd4','#0097a7','#1565c0'], series: '001-015' },
-  { n: '006', file: 'mandala', name: 'Mandala', concept: '4 rings of petals (8,12,16,24)', palette: ['#e91e63','#2196f3','#9c27b0','#673ab7'], series: '001-015' },
-  { n: '007', file: 'metatrons-cube', name: "Metatron's Cube", concept: '13 fully connected nodes', palette: ['#7c4dff','#b388ff','#6200ea','#aa00ff'], series: '001-015' },
-  { n: '008', file: 'torus', name: 'Torus', concept: '3D wireframe torus projection', palette: ['#e91e63','#f06292','#ad1457','#c2185b'], series: '001-015' },
-  { n: '009', file: 'penrose-tiling', name: 'Penrose Tiling', concept: 'Aperiodic 5-fold tessellation', palette: ['#ff7043','#ffab91','#d84315','#bf360c'], series: '001-015' },
-  { n: '010', file: 'geodesic-sphere', name: 'Geodesic Sphere', concept: 'Subdivided icosahedron 3D', palette: ['#26a69a','#80cbc4','#00897b','#004d40'], series: '001-015' },
-  { n: '011', file: 'voronoi-cosmos', name: 'Voronoi Cosmos', concept: '60 seeds Voronoi/Delaunay', palette: ['#ff80ab','#80d8ff','#b9f6ca','#ffff8d'], series: '001-015' },
-  { n: '012', file: 'lissajous-harmony', name: 'Lissajous Harmony', concept: '5 Lissajous curves (1:2 to 5:6)', palette: ['#2979ff','#448aff','#1565c0','#0d47a1'], series: '001-015' },
-  { n: '013', file: 'seed-of-life', name: 'Seed of Life', concept: '7 circles in 5 concentric scales', palette: ['#ce93d8','#ba68c8','#9c27b0','#e1bee7'], series: '001-015' },
-  { n: '014', file: 'fractal-tree', name: 'Fractal Tree', concept: 'Recursive branching (10 levels)', palette: ['#2e7d32','#4caf50','#81c784','#388e3c'], series: '001-015' },
-  { n: '015', file: 'hyperbolic-tessellation', name: 'Hyperbolic Tessellation', concept: 'Poincare disk with heptagons', palette: ['#880e4f','#c62828','#bf360c','#ffd700'], series: '001-015' },
-  // 016-030
-  { n: '016', file: 'cymatics', name: 'Cymatics', concept: 'Chladni vibration patterns', palette: ['#b0bec5','#cfd8dc','#78909c','#eceff1'], series: '016-030' },
-  { n: '017', file: 'double-helix', name: 'Double Helix', concept: 'DNA 3D with base pairs', palette: ['#00bcd4','#26c6da','#00acc1','#0097a7'], series: '016-030' },
-  { n: '018', file: 'spirograph', name: 'Spirograph', concept: '7 hypotrochoids', palette: ['#e91e63','#9c27b0','#cddc39','#ff4081'], series: '016-030' },
-  { n: '019', file: 'islamic-geometric', name: 'Islamic Geometric', concept: 'Zellige 8-pointed star mosaic', palette: ['#1a237e','#ffd700','#283593','#c6a700'], series: '016-030' },
-  { n: '020', file: 'strange-attractor', name: 'Strange Attractor', concept: 'Lorenz attractor (25k points)', palette: ['#ff5722','#ff8a65','#d84315','#ffab91'], series: '016-030' },
-  { n: '021', file: 'rose-curves', name: 'Rose Curves', concept: '7 rhodonea curves r=cos(k\u03b8)', palette: ['#f48fb1','#f8bbd0','#ec407a','#fce4ec'], series: '016-030' },
-  { n: '022', file: 'supernova', name: 'Supernova', concept: 'Radial explosion with shockwaves', palette: ['#ffffff','#2196f3','#f44336','#ff9800'], series: '016-030' },
-  { n: '023', file: 'neural-network', name: 'Neural Network', concept: '7 layers of neurons with synapses', palette: ['#9c27b0','#ce93d8','#7b1fa2','#e1bee7'], series: '016-030' },
-  { n: '024', file: 'orbital-mechanics', name: 'Orbital Mechanics', concept: '6 Keplerian elliptical orbits', palette: ['#212121','#ffd700','#ffc107','#ffb300'], series: '016-030' },
-  { n: '025', file: 'wave-interference', name: 'Wave Interference', concept: 'Double slit diffraction', palette: ['#1a237e','#76ff03','#3d5afe','#64dd17'], series: '016-030' },
-  { n: '026', file: 'hexagonal-lattice', name: 'Hexagonal Lattice', concept: 'Full honeycomb with radial depth', palette: ['#ff8f00','#ffb300','#ffc107','#ffe082'], series: '016-030' },
-  { n: '027', file: 'mobius-strip', name: 'Mobius Strip', concept: 'Non-orientable surface wireframe', palette: ['#e91e63','#00bcd4','#ffd700','#76ff03'], series: '016-030' },
-  { n: '028', file: 'celtic-knot', name: 'Celtic Knot', concept: '4 torus knots (2,3)(3,5)(2,5)(3,7)', palette: ['#2e7d32','#ffd700','#1b5e20','#c6a700'], series: '016-030' },
-  { n: '029', file: 'sacred-eye', name: 'Sacred Eye', concept: 'Eye of providence + geometry', palette: ['#1a237e','#ffd700','#0d47a1','#c6a700'], series: '016-030' },
-  { n: '030', file: 'tesseract', name: 'Tesseract', concept: '4D hypercube rotation & projection', palette: ['#b0bec5','#e8eaf6','#7c4dff','#b388ff'], series: '016-030' },
-  // 031-045
-  { n: '031', file: 'julia-set', name: 'Julia Set', concept: 'c = -0.7+0.27i fractal', palette: ['#7c4dff','#ea80fc','#aa00ff','#d500f9'], series: '031-045' },
-  { n: '032', file: 'magnetic-field', name: 'Magnetic Field', concept: 'Dipolar field lines', palette: ['#78909c','#90caf9','#546e7a','#42a5f5'], series: '031-045' },
-  { n: '033', file: 'harmonic-oscillator', name: 'Harmonic Oscillator', concept: '4 harmonographs with decay', palette: ['#bf360c','#8d6e63','#a1887f','#795548'], series: '031-045' },
-  { n: '034', file: 'reaction-diffusion', name: 'Reaction-Diffusion', concept: 'Turing patterns (Gray-Scott)', palette: ['#00897b','#4db6ac','#26a69a','#009688'], series: '031-045' },
-  { n: '035', file: 'astronomical-clock', name: 'Astronomical Clock', concept: 'Zodiac, ecliptic, hour ring', palette: ['#ffd700','#1a237e','#c6a700','#0d47a1'], series: '031-045' },
-  { n: '036', file: 'sierpinski-triangle', name: 'Sierpinski Triangle', concept: '7 levels + chaos game', palette: ['#00e676','#69f0ae','#00c853','#1b5e20'], series: '031-045' },
-  { n: '037', file: 'standing-waves', name: 'Standing Waves', concept: '5 harmonic modes of circular membrane', palette: ['#ff8f00','#ffb300','#ffc107','#fff176'], series: '031-045' },
-  { n: '038', file: 'galaxy-spiral', name: 'Galaxy Spiral', concept: '4 logarithmic spiral arms', palette: ['#1a237e','#e8eaf6','#3f51b5','#c5cae9'], series: '031-045' },
-  { n: '039', file: 'koch-snowflake', name: 'Koch Snowflake', concept: '7 nested Koch levels', palette: ['#e3f2fd','#90caf9','#42a5f5','#bbdefb'], series: '031-045' },
-  { n: '040', file: 'electric-circuit', name: 'Electric Circuit', concept: 'Manhattan traces & components', palette: ['#bf360c','#2e7d32','#795548','#4caf50'], series: '031-045' },
-  { n: '041', file: 'moire-interference', name: 'Moire Interference', concept: 'Moire circles + offset lines', palette: ['#bdbdbd','#e0e0e0','#9e9e9e','#757575'], series: '031-045' },
-  { n: '042', file: 'nautilus-shell', name: 'Nautilus Shell', concept: 'Golden spiral with chambers', palette: ['#ffe0b2','#fff3e0','#0288d1','#e6cba8'], series: '031-045' },
-  { n: '043', file: 'sacred-lotus', name: 'Sacred Lotus', concept: '5 Bezier petal rings + Fibonacci', palette: ['#e91e63','#ffd700','#ad1457','#c6a700'], series: '031-045' },
-  { n: '044', file: 'rossler-attractor', name: 'Rossler Attractor', concept: '40k points (a=0.2, b=0.2, c=5.7)', palette: ['#00897b','#26a69a','#009688','#4db6ac'], series: '031-045' },
-  { n: '045', file: 'tree-of-life', name: 'Tree of Life', concept: '10 Sephiroth + 22 paths (Kabbalah)', palette: ['#6a1b9a','#ffd700','#4a148c','#c6a700'], series: '031-045' },
-  // 046-060
-  { n: '046', file: 'black-hole', name: 'Black Hole', concept: 'Event horizon, Doppler accretion', palette: ['#0a0a0a','#ff6d00','#ff9100','#212121'], series: '046-060' },
-  { n: '047', file: 'dragon-curve', name: 'Dragon Curve', concept: '16 iterations L-system', palette: ['#b71c1c','#212121','#c62828','#1a1a2e'], series: '046-060' },
-  { n: '048', file: 'hilbert-curve', name: 'Hilbert Curve', concept: 'Order 6 (4096 segments)', palette: ['#00e5ff','#e040fb','#00b8d4','#aa00ff'], series: '046-060' },
-  { n: '049', file: 'apollonian-gasket', name: 'Apollonian Gasket', concept: 'Tangent circle packing (Descartes)', palette: ['#f5f5f5','#ffe082','#e0e0e0','#ffd54f'], series: '046-060' },
-  { n: '050', file: 'sound-waveform', name: 'Sound Waveform', concept: '5 stacked Fourier harmonics', palette: ['#4e342e','#ff8a65','#d7ccc8','#ffab91'], series: '046-060' },
-  { n: '051', file: 'ferrofluid', name: 'Ferrofluid', concept: 'Magnetic sculpture, Gaussian spikes', palette: ['#bdbdbd','#e0e0e0','#757575','#9e9e9e'], series: '046-060' },
-  { n: '052', file: 'quantum-orbitals', name: 'Quantum Orbitals', concept: '1s, 2p, 3d, 4f (Monte Carlo)', palette: ['#2962ff','#82b1ff','#2979ff','#448aff'], series: '046-060' },
-  { n: '053', file: 'topographic-map', name: 'Topographic Map', concept: 'Contour lines, marching squares', palette: ['#795548','#a1887f','#4e342e','#d7ccc8'], series: '046-060' },
-  { n: '054', file: 'diffraction-pattern', name: 'Diffraction Pattern', concept: 'Airy disk (Bessel J1)', palette: ['#d50000','#ff1744','#b71c1c','#ff5252'], series: '046-060' },
-  { n: '055', file: 'gravity-well', name: 'Gravity Well', concept: 'Spacetime curvature (warped grid)', palette: ['#1565c0','#42a5f5','#0d47a1','#90caf9'], series: '046-060' },
-  { n: '056', file: 'phyllotaxis', name: 'Phyllotaxis', concept: '1500 seeds at golden angle (137.5\u00b0)', palette: ['#f9a825','#4caf50','#f57f17','#388e3c'], series: '046-060' },
-  { n: '057', file: 'interference-rings', name: 'Interference Rings', concept: 'Newton rings, thin film', palette: ['#e91e63','#ff9800','#4caf50','#2196f3'], series: '046-060' },
-  { n: '058', file: 'strange-loop', name: 'Strange Loop', concept: 'Penrose triangle, impossible geometry', palette: ['#bdbdbd','#9e9e9e','#757575','#e0e0e0'], series: '046-060' },
-  { n: '059', file: 'clifford-attractor', name: 'Clifford Attractor', concept: '200k points, neon vapor', palette: ['#e040fb','#00e5ff','#ff4081','#76ff03'], series: '046-060' },
-  { n: '060', file: 'cosmic-web', name: 'Cosmic Web', concept: 'Dark matter filaments & voids', palette: ['#311b92','#1a237e','#b388ff','#7c4dff'], series: '046-060' },
-];
+  async function loadHub() {
+    const resp = await fetch('collections/manifest.json');
+    const manifest = await resp.json();
+    const collections = manifest.collections;
 
-const standalone = [
-  { file: '01-flow-field.png', name: 'Flow Field', desc: 'Perlin noise flow with 3000 curved strokes', format: 'png' },
-  { file: '02-particle-vortex.gif', name: 'Particle Vortex', desc: '36-frame animated spiral vortex', format: 'gif' },
-  { file: '03-sacred-geometry.pdf', name: 'Sacred Geometry', desc: 'Flower of Life + Metatron\'s Cube on A3', format: 'pdf' },
-  { file: '04-flow-field.html', name: 'Interactive Flow Field', desc: 'Click to regenerate, 4 palettes, animated particles', format: 'html' },
-  { file: '05-geometric-poster.svg', name: 'Geometric Poster', desc: 'Hexagonal neon grid on dark background', format: 'svg' },
-  { file: '06-cosmic-particles.html', name: 'Cosmic Particles', desc: 'Interactive night sky with shooting stars', format: 'html' },
-];
+    // Aggregate stats
+    const totals = {};
+    collections.forEach(c => {
+      c.stats.forEach(s => {
+        totals[s.label] = (totals[s.label] || { value: 0, color: s.color });
+        totals[s.label].value += s.value;
+      });
+    });
 
-const sources = [
-  { file: 'gen_001_015.py', name: 'Series 001–015', desc: 'Flower of Life, Sri Yantra, Fibonacci, Platonic Solids, Vesica Piscis, Mandala, Metatron, Torus, Penrose, Geodesic, Voronoi, Lissajous, Seed of Life, Fractal Tree, Hyperbolic' },
-  { file: 'gen_016_030.py', name: 'Series 016–030', desc: 'Cymatics, DNA, Spirograph, Islamic, Lorenz, Rose Curves, Supernova, Neural Net, Orbits, Interference, Honeycomb, Mobius, Celtic, Eye, Tesseract' },
-  { file: 'gen_031_045.py', name: 'Series 031–045', desc: 'Julia Set, Magnetic, Harmonograph, Reaction-Diffusion, Clock, Sierpinski, Waves, Galaxy, Koch, Circuit, Moire, Nautilus, Lotus, Rossler, Tree of Life' },
-  { file: 'gen_046_060.py', name: 'Series 046–060', desc: 'Black Hole, Dragon, Hilbert, Apollonian, Waveform, Ferrofluid, Orbitals, Topo, Diffraction, Gravity, Phyllotaxis, Newton, Penrose, Clifford, Cosmic Web' },
-  { file: 'gen_gifs.py', name: 'GIF Animations', desc: '15 perfect-loop GIFs: Flower, Mandala, Vortex, Metatron, Orbits, Waves, Lorenz, Morph, Phyllotaxis, Kaleidoscope, Torus, Tesseract, Supernova, DNA, Geodesic' },
-];
-
-// ===== RENDER =====
-function renderGifs() {
-  const grid = document.getElementById('gif-grid');
-  grid.innerHTML = gifs.map(g => `
-    <a href="geometria-sacred-patterns/gif/${g.id}-${g.file}.gif" class="gif-card fade-in" target="_blank">
-      <img src="geometria-sacred-patterns/gif/${g.id}-${g.file}.gif" alt="${g.name}" loading="lazy">
-      <span class="gif-badge">${g.id} / 15</span>
-      <div class="overlay">
-        <h3>${g.name}</h3>
-        <p>${g.desc} &middot; ${g.palette}</p>
-      </div>
-    </a>
-  `).join('');
-}
-
-function renderPdfs(filter = 'all') {
-  const grid = document.getElementById('pdf-grid');
-  const filtered = filter === 'all' ? pdfs : pdfs.filter(p => p.series === filter);
-  grid.innerHTML = filtered.map(p => `
-    <a href="geometria-sacred-patterns/${p.n}-${p.file}.pdf" class="pdf-card fade-in" target="_blank">
-      <svg class="pdf-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M7 21h10a2 2 0 002-2V9l-6-6H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-        <path d="M13 3v6h6"/>
-      </svg>
-      <div class="pdf-number">${p.n}</div>
-      <div class="pdf-name">${p.name}</div>
-      <div class="pdf-concept">${p.concept}</div>
-      <div class="pdf-palette">
-        ${p.palette.map(c => `<span class="dot" style="background:${c}"></span>`).join('')}
-      </div>
-    </a>
-  `).join('');
-  observeFadeIns();
-}
-
-function renderStandalone() {
-  const grid = document.getElementById('standalone-grid');
-  grid.innerHTML = standalone.map(s => {
-    const isImage = s.format === 'png' || s.format === 'gif' || s.format === 'svg';
-    const preview = isImage
-      ? `<img src="${s.file}" alt="${s.name}" loading="lazy">`
-      : `<div style="color:var(--text2);font-size:0.9rem;">${s.format === 'html' ? 'Interactive' : 'PDF Document'}</div>`;
-    return `
-      <a href="${s.file}" class="standalone-card fade-in" target="_blank">
-        <div class="standalone-preview">
-          ${preview}
-          <span class="format-tag ${s.format}">.${s.format}</span>
+    const statsEl = document.getElementById('hub-stats');
+    statsEl.innerHTML = [
+      ...Object.entries(totals).map(([label, s]) => `
+        <div class="stat">
+          <div class="stat-number ${s.color}">${s.value}</div>
+          <div class="stat-label">${label}</div>
         </div>
-        <div class="standalone-info">
-          <h3>${s.name}</h3>
-          <p>${s.desc}</p>
+      `),
+      `<div class="stat">
+        <div class="stat-number emerald">${collections.length}</div>
+        <div class="stat-label">${collections.length === 1 ? 'Collection' : 'Collections'}</div>
+      </div>`
+    ].join('');
+
+    // Render collection cards
+    const grid = document.getElementById('collections-grid');
+    grid.innerHTML = collections.map(c => `
+      <a href="${c.path}" class="collection-card fade-in">
+        <div class="collection-cover">
+          <img src="${c.coverImage}" alt="${c.name}" loading="lazy">
+        </div>
+        <div class="collection-body">
+          <h3>${c.name}</h3>
+          <p class="tagline">${c.tagline}</p>
+          <div class="collection-stats">
+            ${c.stats.map(s => `
+              <div class="collection-stat">
+                <div class="collection-stat-value ${s.color}">${s.value}</div>
+                <div class="collection-stat-label">${s.label}</div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="collection-tags">
+            ${c.tags.map(t => `<span class="collection-tag">${t}</span>`).join('')}
+          </div>
         </div>
       </a>
-    `;
-  }).join('');
-}
+    `).join('');
 
-function renderSources() {
-  const grid = document.getElementById('source-grid');
-  grid.innerHTML = sources.map(s => `
-    <a href="geometria-sacred-patterns/${s.file}" class="source-card fade-in" target="_blank">
-      <h3>${s.file}</h3>
-      <p><strong>${s.name}</strong></p>
-      <p style="margin-top:0.4rem">${s.desc}</p>
-    </a>
-  `).join('');
-}
-
-// ===== FILTERS =====
-document.getElementById('pdf-filters').addEventListener('click', e => {
-  if (!e.target.classList.contains('filter-btn')) return;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-  e.target.classList.add('active');
-  renderPdfs(e.target.dataset.filter);
-});
-
-// ===== SCROLL ANIMATIONS =====
-function observeFadeIns() {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('visible');
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-
-  document.querySelectorAll('.fade-in:not(.visible)').forEach(el => observer.observe(el));
-}
-
-// ===== HERO CANVAS (subtle particle background) =====
-function initHeroCanvas() {
-  const canvas = document.getElementById('hero-canvas');
-  const ctx = canvas.getContext('2d');
-  let w, h, particles = [];
-
-  function resize() {
-    w = canvas.width = canvas.offsetWidth;
-    h = canvas.height = canvas.offsetHeight;
+    observeFadeIns();
   }
 
-  function createParticles() {
-    particles = [];
-    const count = Math.min(80, Math.floor(w * h / 12000));
-    for (let i = 0; i < count; i++) {
-      particles.push({
-        x: Math.random() * w,
-        y: Math.random() * h,
-        vx: (Math.random() - 0.5) * 0.3,
-        vy: (Math.random() - 0.5) * 0.3,
-        r: Math.random() * 1.5 + 0.5,
-        hue: Math.random() * 60 + 240,
-      });
-    }
-  }
-
-  function draw() {
-    ctx.clearRect(0, 0, w, h);
-
-    // Draw connections
-    for (let i = 0; i < particles.length; i++) {
-      for (let j = i + 1; j < particles.length; j++) {
-        const dx = particles[i].x - particles[j].x;
-        const dy = particles[i].y - particles[j].y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 150) {
-          const alpha = (1 - dist / 150) * 0.15;
-          ctx.strokeStyle = `hsla(270, 60%, 70%, ${alpha})`;
-          ctx.lineWidth = 0.5;
-          ctx.beginPath();
-          ctx.moveTo(particles[i].x, particles[i].y);
-          ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.stroke();
-        }
-      }
-    }
-
-    // Draw particles
-    particles.forEach(p => {
-      p.x += p.vx;
-      p.y += p.vy;
-      if (p.x < 0 || p.x > w) p.vx *= -1;
-      if (p.y < 0 || p.y > h) p.vy *= -1;
-
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = `hsla(${p.hue}, 60%, 70%, 0.6)`;
-      ctx.fill();
-    });
-
-    requestAnimationFrame(draw);
-  }
-
-  resize();
-  createParticles();
-  draw();
-  window.addEventListener('resize', () => { resize(); createParticles(); });
-}
-
-// ===== INIT =====
-renderGifs();
-renderPdfs();
-renderStandalone();
-renderSources();
-observeFadeIns();
-initHeroCanvas();
+  loadHub();
+  initHeroCanvas();
 </script>
 </body>
 </html>

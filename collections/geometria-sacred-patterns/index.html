@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Geometria Sacred Patterns — AI Art</title>
+<link rel="stylesheet" href="../../shared/styles.css">
+<link rel="stylesheet" href="../../shared/collection.css">
+</head>
+<body>
+
+<header class="collection-hero" id="collection-hero"></header>
+<main id="collection-content"></main>
+
+<footer>
+  <p>All art generated with Python + ReportLab + Pillow</p>
+  <p style="margin-top: 0.5rem;">
+    <a href="../../">Back to AI Art</a>
+    &nbsp;&middot;&nbsp;
+    <a href="https://github.com/ArtemioPadilla/ai-art">GitHub</a>
+    &nbsp;&middot;&nbsp;
+    <a href="README.md">Documentation</a>
+  </p>
+</footer>
+
+<script type="module">
+  import { collectionMeta, gifs, pdfs, standalone, sources } from './data.js';
+  import { renderCollectionPage } from '../../shared/collection-loader.js';
+
+  renderCollectionPage({
+    meta: collectionMeta,
+    gifs,
+    pdfs,
+    standalone: standalone.map(s => ({ ...s, file: `standalone/${s.file}` })),
+    sources,
+    basePath: './',
+  });
+</script>
+</body>
+</html>

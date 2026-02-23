@@ -2,32 +2,35 @@
 
 ## Project Overview
 
-Generative algorithmic art repository. Contains 60 sacred geometry PDF posters (A3 vector), 15 perfectly looping animated GIFs, 6 standalone art pieces, and the Python scripts that generate them.
+Multi-collection generative algorithmic art hub. Currently contains one collection ("Geometria Sacred Patterns") with 60 sacred geometry PDF posters, 15 looping GIFs, 6 standalone pieces, and the Python scripts that generate them. Designed for easy addition of new collections.
 
 **Live gallery**: https://artemiopadilla.github.io/ai-art/
 
 ## Repo Structure
 
 ```
-index.html                          — Gallery showcase (GitHub Pages)
-README.md                           — Repo overview
-01-flow-field.png                   — Standalone: flow field (1600x1100)
-02-particle-vortex.gif              — Standalone: animated vortex (36 frames)
-03-sacred-geometry.pdf              — Standalone: Flower of Life + Metatron's Cube
-04-flow-field.html                  — Standalone: interactive flow field (p5.js-like)
-05-geometric-poster.svg             — Standalone: hexagonal neon poster
-06-cosmic-particles.html            — Standalone: interactive cosmic sky
-geometria-sacred-patterns/
-├── gen_001_015.py                  — Generator: PDFs 001–015
-├── gen_016_030.py                  — Generator: PDFs 016–030
-├── gen_031_045.py                  — Generator: PDFs 031–045
-├── gen_046_060.py                  — Generator: PDFs 046–060
-├── gen_gifs.py                     — Generator: 15 animated GIFs
-├── README.md                       — Detailed documentation
-├── 001-flower-of-life.pdf … 060-cosmic-web.pdf
-└── gif/
-    └── 01-flower-of-life.gif … 15-geodesic-sphere.gif
-.github/workflows/pages.yml        — Auto-deploy to GitHub Pages on push
+index.html                              — Hub landing page (fetches manifest, renders collection cards)
+shared/
+├── styles.css                          — Shared CSS (theme, cards, grids, animations)
+├── hub.css                             — Hub-page-specific styles
+├── collection.css                      — Collection-page-specific styles
+├── hero-canvas.js                      — Particle background (ES module)
+├── scroll-animations.js                — IntersectionObserver fade-ins
+├── gallery-renderer.js                 — Render functions for GIFs, PDFs, standalone, sources
+└── collection-loader.js                — Orchestrates rendering a collection page
+collections/
+├── manifest.json                       — Central registry of all collections
+└── geometria-sacred-patterns/
+    ├── index.html                      — Collection detail page
+    ├── data.js                         — Exports gifs[], pdfs[], standalone[], sources[]
+    ├── gen_001_015.py … gen_gifs.py    — Generator scripts
+    ├── README.md                       — Detailed documentation
+    ├── 001-flower-of-life.pdf … 060-cosmic-web.pdf
+    ├── gif/
+    │   └── 01-flower-of-life.gif … 15-geodesic-sphere.gif
+    └── standalone/
+        └── 01-flow-field.png … 06-cosmic-particles.html
+.github/workflows/pages.yml            — Auto-deploy to GitHub Pages on push
 ```
 
 ## Tech Stack
@@ -35,8 +38,14 @@ geometria-sacred-patterns/
 - **Python 3.10+**
 - **ReportLab** — PDF generation (canvas API, Color with alpha, bezier paths)
 - **Pillow (PIL)** — PNG/GIF generation (ImageDraw, ImageFilter, frame animation)
-- **Vanilla HTML/CSS/JS** — Gallery page (no build step, no frameworks)
+- **Vanilla HTML/CSS/JS** — Gallery pages (no build step, no frameworks, ES modules)
 - **GitHub Actions** — Static site deployment to GitHub Pages
+
+## Architecture
+
+- **Multi-page with shared ES modules**: Hub page at root, collection detail pages under `collections/*/`
+- **Data layers**: `collections/manifest.json` for hub summaries, per-collection `data.js` for full item arrays
+- **Local dev requires HTTP server**: ES modules don't work over `file://` — use `python3 -m http.server`
 
 ## Key Conventions
 
@@ -57,19 +66,19 @@ geometria-sacred-patterns/
 - Output goes to `gif/` subdirectory
 - GIF saved with `loop=0` (infinite)
 
-### Gallery (index.html)
+### Gallery
 
-- Pure static HTML — no build step, no dependencies
-- Data-driven: all content defined in JS arrays, rendered dynamically
+- Hub page (`index.html`) fetches `collections/manifest.json` and renders collection cards
+- Each collection page imports shared modules from `../../shared/` and its own `data.js`
+- Shared CSS: `styles.css` (base) + `hub.css` or `collection.css` (page-specific)
 - Dark theme with CSS custom properties
 - Intersection Observer for scroll animations
 - Hero section has animated canvas particle background
-- PDF filter tabs by series (001–015, 016–030, etc.)
 
 ## Regenerating Art
 
 ```bash
-cd geometria-sacred-patterns
+cd collections/geometria-sacred-patterns
 python3 -m venv .venv
 source .venv/bin/activate
 pip install reportlab Pillow
@@ -81,19 +90,28 @@ python3 gen_046_060.py
 python3 gen_gifs.py
 ```
 
-## Adding New Pieces
+## Adding a New Collection
+
+1. Create `collections/my-new-collection/`
+2. Add your art files and generator scripts
+3. Write `data.js` exporting item arrays (`collectionMeta`, `gifs`, `pdfs`, `standalone`, `sources`)
+4. Copy any existing collection's `index.html` as template — change the `<title>` and imports
+5. Add one entry to `collections/manifest.json`
+6. Push — hub page automatically shows the new collection
+
+## Adding Pieces to an Existing Collection
 
 ### New PDF
 
-Add a `gen_NNN()` function following the pattern in existing scripts. See `geometria-sacred-patterns/README.md` for the full template and design rules.
+Add a `gen_NNN()` function following the pattern in existing scripts. See `collections/geometria-sacred-patterns/README.md` for the full template and design rules. Update `data.js` to include the new entry.
 
 ### New GIF
 
-Add a function to `gen_gifs.py`. Use `loop_t()` for seamless looping. Return a list of PIL Image frames and call `make_gif(frames, name)`.
+Add a function to `gen_gifs.py`. Use `loop_t()` for seamless looping. Return a list of PIL Image frames and call `make_gif(frames, name)`. Update `data.js`.
 
 ### Gallery
 
-Update the `pdfs`, `gifs`, or `standalone` arrays in `index.html` to include new pieces.
+Update the arrays in the collection's `data.js`. If adding a new collection, also update `collections/manifest.json`.
 
 ## Known Gotchas
 
@@ -101,3 +119,4 @@ Update the `pdfs`, `gifs`, or `standalone` arrays in `index.html` to include new
 - Local variable `A3` shadows the pagesize import — use lowercase for local vars
 - System Python on macOS is externally-managed (PEP 668) — always use a venv
 - Large PDFs with many transparent layers can be slow to render in viewers
+- ES modules require HTTP server for local dev (`python3 -m http.server`)
